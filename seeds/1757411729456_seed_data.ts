@@ -67,4 +67,57 @@ export async function seed(db: Kysely<DB>): Promise<void> {
         .execute();
     }
   }
+
+  await db.deleteFrom("playlists_songs").execute();
+  await db.deleteFrom("playlists").execute();
+
+  for (let i = 0; i < 15; i += 1) {
+    await db
+      .insertInto("playlists")
+      .values({
+        name: "Playlist " + (i+1),
+      })
+      .execute();
+  }
+
+  const playlists = await db.selectFrom("playlists").selectAll().execute();
+  const songs = await db.selectFrom("songs").selectAll().execute();
+
+  for (const playlist of playlists) {
+    const typeOfPlaylist = faker.number.int({ min: 0, max: 9 });
+
+    let numSongsPlaylist = 1;
+
+    if (typeOfPlaylist < 2) {
+      numSongsPlaylist = 1;
+    } else if (typeOfPlaylist < 5) {
+      numSongsPlaylist = faker.number.int({ min: 4, max: 6 });
+    } else {
+      numSongsPlaylist = faker.number.int({ min: 10, max: 20 });
+    }
+
+    if (numSongsPlaylist > songs.length) {
+      numSongsPlaylist = songs.length;
+    }
+
+    const usedSongs: number[] = [];
+
+    for (let i = 0; i < numSongsPlaylist; i += 1) {
+      let song;
+      do {
+        const index = faker.number.int({ min: 0, max: songs.length - 1 });
+        song = songs[index];
+      } while (usedSongs.includes(song.id));
+
+      usedSongs.push(song.id);
+
+      await db
+        .insertInto("playlists_songs")
+        .values({
+          playlist_id: playlist.id,
+          song_id: song.id,
+        })
+        .execute();
+    }
+  }
 }
