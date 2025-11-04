@@ -3,9 +3,48 @@ import { faker } from "@faker-js/faker";
 import type { Kysely } from "kysely";
 
 export async function seed(db: Kysely<DB>): Promise<void> {
-  await db.deleteFrom("songs").execute();
+  await db.deleteFrom("users").execute();
+  await db.deleteFrom("playlists_songs").execute();
+  await db.deleteFrom("playlists").execute();
   await db.deleteFrom("albums").execute();
+  await db.deleteFrom("songs").execute();
   await db.deleteFrom("authors").execute();
+ 
+  await db
+      .insertInto("users")
+      .values({
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        id: 1,
+      })
+      .execute();
+  for (let i = 0; i < 10; i += 1) {
+    await db
+      .insertInto("users")
+      .values({
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+      })
+      .execute();
+  }
+  const users = await db.selectFrom("users").selectAll().execute();
+    
+
+  for (let i = 0; i < users.length; i += 1) {
+    const numPlaylist = faker.number.int({ min: 1, max: 10 });
+    for (let i = 0; i < numPlaylist; i += 1){
+    await db
+      .insertInto("playlists")
+      .values({
+        name: faker.lorem.words({ min: 1, max: 3}),
+        user_id: users[i].id,
+      })
+      .execute();
+  }}
+
+  
 
   for (let i = 0; i < 20; i += 1) {
     const numBioParagraphs = faker.number.int({ min: 0, max: 5 });
@@ -25,7 +64,7 @@ export async function seed(db: Kysely<DB>): Promise<void> {
   const authors = await db.selectFrom("authors").selectAll().execute();
 
   for (const author of authors) {
-    const numAlbums = faker.number.int({ min: 0, max: 10 });
+    const numAlbums = faker.number.int({ min: 1, max: 10 });
 
     for (let i = 0; i < numAlbums; i += 1) {
       await db
@@ -68,17 +107,7 @@ export async function seed(db: Kysely<DB>): Promise<void> {
     }
   }
 
-  await db.deleteFrom("playlists_songs").execute();
-  await db.deleteFrom("playlists").execute();
 
-  for (let i = 0; i < 15; i += 1) {
-    await db
-      .insertInto("playlists")
-      .values({
-        name: "Playlist " + (i+1),
-      })
-      .execute();
-  }
 
   const playlists = await db.selectFrom("playlists").selectAll().execute();
   const songs = await db.selectFrom("songs").selectAll().execute();
@@ -119,5 +148,5 @@ export async function seed(db: Kysely<DB>): Promise<void> {
         })
         .execute();
     }
+    } 
   }
-}

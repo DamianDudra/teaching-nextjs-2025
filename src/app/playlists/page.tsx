@@ -1,6 +1,7 @@
 import { getDb } from "@/lib/db";
 import Link from "next/link";
 
+
 export default async function PlaylistsDetail() {
   const db = getDb();
 
@@ -8,15 +9,16 @@ export default async function PlaylistsDetail() {
     .selectFrom("playlists")
     .select([
       "id", 
-      "name"
-    ])
+      "name",])
+    .where("user_id", "=", 1)
     .execute();
-
+  
   if (playlists === null || playlists === undefined) {
     return <div>Playlists not found</div>;
   }
 
   return (
+ 
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <p className="text-4xl font-bold">Playlists</p>
@@ -39,4 +41,4 @@ export default async function PlaylistsDetail() {
       </main>
     </div>
   );
-}
+} 
