@@ -1,5 +1,6 @@
 import { getDb } from "@/lib/db";
 import Link from "next/link";
+import { RemovePlaylistButton } from "./RemovePlaylistButton";
 
 
 export default async function PlaylistsDetail() {
@@ -34,6 +35,11 @@ export default async function PlaylistsDetail() {
                     Detail
                   </Link>
                 </div>
+                <div>
+                  <RemovePlaylistButton
+                  playlistId={playlist.id}
+                  />
+              </div>
               </div>
             </div>
           ))}

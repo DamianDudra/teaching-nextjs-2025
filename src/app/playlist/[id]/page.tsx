@@ -1,5 +1,7 @@
 import { getDb } from "@/lib/db";
 import Link from "next/link";
+import { RemovePlaylistSongButton } from "./RemovePlaylistSongButton";
+import { AddSongToPlaylist } from "./RemovePlaylistSongButton";
 
 function formatDuration(dur: number): string {
   const m = Math.floor(dur / 60);
@@ -21,7 +23,7 @@ export default async function PlaylistDetail({
   }
   const playlist = await db
     .selectFrom("playlists")
-    .select("name")
+    .select(["name", "id"])
     .where("id", "=", playlistId)
     .executeTakeFirst();
 
@@ -55,6 +57,7 @@ export default async function PlaylistDetail({
                   <th>#</th>
                   <th>Title</th>
                   <th>Duration</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -63,9 +66,21 @@ export default async function PlaylistDetail({
                     <td>{i + 1}</td>
                     <td>{song.name}</td>
                     <td>{formatDuration(song.duration)}</td>
+                    <td>
+                    <RemovePlaylistSongButton
+                      playlistId={playlist.id}
+                      songId={song.id}
+                    />
+                  </td>
                   </tr>
+                  
                 ))}
               </tbody>
+              <div>
+                <AddSongToPlaylist 
+                playlistId={playlist.id}
+                songId={song.id} />
+              </div>
             </table>
           ): (
             <p className="text-center">No songs.</p>
