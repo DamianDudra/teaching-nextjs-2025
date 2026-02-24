@@ -54,6 +54,9 @@ export function NavBar() {
         <Link href="/history" className="btn btn-ghost text-xl">
           History
         </Link>
+        <Link href="/login" className="btn btn-ghost text-xl">
+          Login
+        </Link>
       </div>
     </div>
   );
