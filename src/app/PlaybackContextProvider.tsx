@@ -291,6 +291,69 @@ export function PlaybackContextProvider({
             isRepeatOn: !prev.isRepeatOn,
           }));
         },
+        addToQueue: (song: Song) => {
+          setPlaybackStatus((prev) => {
+            const newQueue = [...prev.queue, song];
+            return {
+              ...prev,
+              queue: newQueue,
+              ...(prev.isShuffled
+                ? {
+                    shuffleOrder: [...prev.shuffleOrder, newQueue.length - 1],
+                  }
+                : {}),
+            };
+          });
+        },
+        replaceQueue: (songs: Song[]) => {
+          setPlaybackStatus((prev) => ({
+            ...prev,
+            queue: songs,
+            currentSongIndex: 0,
+            progress: 0,
+            isPlaying: true,
+            playbackStart: { timestamp: Date.now(), progressAtStart: 0 },
+            isShuffled: false,
+            shuffleOrder: [],
+            shufflePosition: 0,
+          }));
+        },
+        removeFromQueue: (songId: number) => {
+          setPlaybackStatus((prev) => {
+            const removeIndex = prev.queue.findIndex((s) => s.id === songId);
+            if (removeIndex === -1) return prev;
+            if (removeIndex === prev.currentSongIndex) return prev;
+
+            const newQueue = prev.queue.filter((_, i) => i !== removeIndex);
+            const newCurrentSongIndex =
+              removeIndex < prev.currentSongIndex
+                ? prev.currentSongIndex - 1
+                : prev.currentSongIndex;
+
+            if (prev.isShuffled) {
+              const newShuffleOrder = prev.shuffleOrder
+                .filter((i) => i !== removeIndex)
+                .map((i) => (i > removeIndex ? i - 1 : i));
+              const newShufflePosition = Math.min(
+                prev.shufflePosition,
+                newShuffleOrder.length - 1,
+              );
+              return {
+                ...prev,
+                queue: newQueue,
+                currentSongIndex: newCurrentSongIndex,
+                shuffleOrder: newShuffleOrder,
+                shufflePosition: newShufflePosition,
+              };
+            }
+
+            return {
+              ...prev,
+              queue: newQueue,
+              currentSongIndex: newCurrentSongIndex,
+            };
+          });
+        },
       }}
     >
       {children}

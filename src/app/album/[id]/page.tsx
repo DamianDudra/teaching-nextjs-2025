@@ -1,8 +1,10 @@
+import { getSessionUserId } from "@/actions/login";
+import { AddToQueueButton } from "@/components/AddToQueueButton";
+import { LikeSongButton } from "@/components/LikeSongButton";
+import { PlayAllButton } from "@/components/PlayAllButton";
 import { getDb } from "@/lib/db";
 import Link from "next/link";
 import { AddSongToPlaylistButton } from "./AddSongToPlaylistButton";
-import { LikeSongButton } from "@/components/LikeSongButton";
-import { getSessionUserId } from "@/actions/login";
 
 function formatDuration(duration: number): string {
   const minutes = Math.floor(duration / 60);
@@ -82,6 +84,14 @@ export default async function AlbumDetail({
           {album.name} by{" "}
           <Link href={`/author/${album.author_id}`}>{album.author_name}</Link>
         </div>
+        <PlayAllButton
+          songs={songs.map((song) => ({
+            id: song.id,
+            name: song.name,
+            author: album.author_name,
+            duration: song.duration,
+          }))}
+        />
         <div>
           <table className="table">
             <thead>
@@ -111,6 +121,14 @@ export default async function AlbumDetail({
                         songId={song.id}
                       />
                     ) : null}
+                    <AddToQueueButton
+                      song={{
+                        id: song.id,
+                        name: song.name,
+                        author: album.author_name,
+                        duration: song.duration,
+                      }}
+                    />
                   </td>
                 </tr>
               ))}

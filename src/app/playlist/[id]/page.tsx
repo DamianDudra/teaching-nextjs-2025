@@ -1,9 +1,11 @@
+import { getSessionUserId } from "@/actions/login";
+import { AddToQueueButton } from "@/components/AddToQueueButton";
+import { LikeSongButton } from "@/components/LikeSongButton";
+import { PlayAllButton } from "@/components/PlayAllButton";
 import { getDb } from "@/lib/db";
 import Link from "next/link";
-import { RemovePlaylistSongButton } from "./RemovePlaylistSongButton";
 import { EditPlaylistButton } from "./EditPlaylistButton";
-import { LikeSongButton } from "@/components/LikeSongButton";
-import { getSessionUserId } from "@/actions/login";
+import { RemovePlaylistSongButton } from "./RemovePlaylistSongButton";
 
 function formatDuration(duration: number): string {
   const minutes = Math.floor(duration / 60);
@@ -78,6 +80,14 @@ export default async function PlaylistPage({
           playlistId={playlist.id}
           playlistName={playlist.name}
         />
+        <PlayAllButton
+          songs={playlist_songs.map((song) => ({
+            id: song.song_id,
+            name: song.name,
+            author: song.author_name,
+            duration: song.duration,
+          }))}
+        />
         <div>
           <table className="table">
             <thead>
@@ -117,6 +127,14 @@ export default async function PlaylistPage({
                       id={song.id}
                       playlistId={song.playlist_id}
                       songId={song.song_id}
+                    />
+                    <AddToQueueButton
+                      song={{
+                        id: song.song_id,
+                        name: song.name,
+                        author: song.author_name,
+                        duration: song.duration,
+                      }}
                     />
                   </td>
                 </tr>
