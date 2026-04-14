@@ -11,6 +11,7 @@ export async function seed(db: Kysely<DB>): Promise<void> {
   await db.deleteFrom("albums").execute();
   await db.deleteFrom("authors").execute();
   await db.deleteFrom("users").execute();
+  await db.deleteFrom("following_authors").execute();
 
   for (let i = 0; i < 20; i += 1) {
     const numBioParagraphs = faker.number.int({ min: 0, max: 5 });
@@ -172,6 +173,27 @@ export async function seed(db: Kysely<DB>): Promise<void> {
           event_name: randomEventName,
           song_id: randomSongId,
           event_date: faker.date.past().getTime(),
+        })
+        .execute();
+    }
+  }
+
+  const authorIds = authors.map((author) => author.id);
+
+  for (const user of users) {
+    const numFollowedAuthors = faker.number.int({ min: 0, max: 10 });
+    const randomAuthorIds = faker.helpers.arrayElements(authorIds, {
+      min: 0,
+      max: Math.min(numFollowedAuthors, authorIds.length),
+    });
+
+    for (const authorId of randomAuthorIds) {
+      await db
+        .insertInto("following_authors")
+        .values({
+          user_id: user.id,
+          author_id: authorId,
+          created_at: faker.date.past().getTime(),
         })
         .execute();
     }
